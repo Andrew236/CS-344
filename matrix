@@ -1,0 +1,418 @@
+#!/bin/bash
+
+
+#Andrew White
+#Matrix program 1
+#CS 344
+
+
+
+tempCol="tempcolfile"
+tempRow="temprowfile"
+#these are my global variables
+NUM_OF_ROWS=0
+NUM_OF_COLS=0
+declare -A add
+declare -A addfiletwo
+
+
+
+meann(){                                                #this was goiung to be the start of something but I couldnt figure it out oh wel
+  if [ $# -gt 1]
+  then
+lineread=$2
+fileTwo=$3
+
+
+elif [ "$#" = "1"]
+then
+linereade=temporary
+cat > $lineread
+
+fi
+}
+#this is my function that handles errors. I call it whenever I need an error call
+#it makes it easier than having to echo out ever time haha
+imsorry(){
+  echo "There is either too few or too many arguments.. system failure">&2
+  exit 1
+}
+###########################################################################
+
+
+
+#function for dims that I call for stdin
+#this is for the dims function for standard in
+#this is if we are not reaing from a file we will do This
+#this function gets called into my program during dims
+#####################################################
+stdinstart (){
+  while read -a lineread
+  do
+    NUM_OF_COLS="${#lineread[@]}"
+    ((NUM_OF_ROWS++))
+
+  done
+  echo "$NUM_OF_ROWS $NUM_OF_COLS"
+  exit 0
+}
+#############################################################
+
+#this is the start of my print function for trasnpose
+#instead of having to write this out twice I only have to write it once
+#I thin call this when it is time to print my transpsoe function
+transprint() {
+
+  for((m=0;m<NUM_OF_COLS;m++))
+    do
+      printf "%d" "${trans[0, $m]}"
+      for ((iterator=1;iterator<NUM_COUNT;iterator++))
+      do
+    printf '\t%s' ${trans[$iterator, $m]}
+
+  done
+  echo
+  done
+  exit 0
+}
+################################################################
+
+#function I have that just is used for standard in during my trans functioin
+#just makes it easier to read and I like just callig a one word line in my code
+#when it is time to run it.
+###################################################################
+stdintran () {
+  while read -a lineread
+    do
+    NUM_OF_COLS="${#lineread[@]}"
+    for((m=0;m<NUM_OF_COLS;m++))
+    do
+    trans[$iterator, $m]="${lineread[m]}"
+  done
+  ((iterator++))
+  ((NUM_COUNT++))
+done
+
+}
+################################################################################
+
+#I use switch/case statements to run through my various functions for my program
+#this is the start of case one... I use $ as showing argument 1 witch wouldnt be
+#matrix but it would be the first argument so dims transpsoe etc..
+case "$1" in                                               #starting my case statement
+  dims)
+
+  if [ $# -gt 2 ]                                       #if over throw an error
+  then
+    imsorry
+fi
+
+
+#if only dims is entered we read this from standard input
+#basically saying that one argument is passed so we arent looking for a file
+#This works becasue now we can pipe it with our temp files we made
+#i called a function that I already made called std in start which
+#does alll my code
+  if [ "$#" = "1" ]                                                 #if the number of argument =1
+    then
+      stdinstart
+    fi
+
+#This is my dims function code where I take it from a file.
+#the if statement checks to see if it is equal to two Arguments
+#and then checs to see if the file is readable and is executable
+# with -e and -r.
+
+  if [[ "$#" = "2" && -e "$2" && -r "$2" ]]                       #numhber of arguments equal 2 and is executable and readable
+
+then
+      while read -a lineread                                    #reading the line of a file tht we pass in this case argument 2
+    do
+      NUM_OF_COLS="${#lineread[@]}"                             #reading every charecter in the line untill it hits the last
+        ((NUM_OF_ROWS++))
+done < $2
+      echo "$NUM_OF_ROWS $NUM_OF_COLS"                          #printing out num rows and then num of coloms
+
+      exit 0
+
+    else
+      imsorry                                                    #throwing the erorr
+    fi
+  ;;
+
+#This is the start of my transpose function. I take the elements in the matrix and
+#I flip them around. A row turns into a column and vice versa.
+
+transpose)
+
+#variables I define in my code for tranpsoe function
+  iterator=0             #loop iterator
+  m=0             #loop iterator
+  NUM_COUNT=0     #number counter
+
+declare -A trans   #declaring an array that i call trans
+
+if [ $# -gt 2 ]     #greater than 2 throw erroor
+then
+imsorry
+
+elif [ $# -lt 1 ]     #less than 1 throw error
+then
+imsorry
+
+elif [[ "$#" = "2" && -e "$2" && -r "$2" ]]                 #if exectuable and readable and arguments equal 2 run
+
+  then
+      while read -a lineread
+        do
+        NUM_OF_COLS="${#lineread[@]}"
+        for((m=0;m<NUM_OF_COLS;m++))
+        do
+        trans[$iterator, $m]="${lineread[m]}"
+      done
+      ((iterator++))
+      ((NUM_COUNT++))
+
+
+done < $2                                                       #reads argument 2
+
+#this is calling my trans print function that I have up in my code
+#makes it a fun easy liner to run
+transprint            #function call
+
+elif [ "$#" = "1" ]
+then
+
+#this calls my stdin trans function so I don't have to re write my code
+#then it also calls the print funcion which is the same as the upper one
+  stdintran
+  transprint
+
+  #this throws an error
+else
+  imsorry
+
+fi
+
+;;
+###########################################################
+#this is the start of my add fucnton for my matrix program
+#######################################################
+
+
+add)
+
+m=0
+iterator=0
+NUM_COUNT_ONE=0
+NUM_COUNT_TWO=0
+NUM_COUNT=0
+FIRST_COL=0
+SECOND_COL=0
+declare -A addmatrix1
+declare -A addmatrix2
+declare -A outputmatrix
+
+
+    if [[ $# -lt 3 || $# -gt 3 ]]
+    then
+      imsorry
+
+elif [ $# -eq 3 ]
+
+then
+  while read -a lineread
+
+  do
+FIRST_COL="${#lineread[@]}"
+for((m=0; m<$FIRST_COL;m++))
+  do
+    addmatrix1[$iterator, $m]="${lineread[m]}"
+done
+((iterator++))
+((NUM_COUNT++))
+
+done < $2
+
+iterator=0
+
+while read -a lineread1                                             #reads every char in a line
+  do
+    SECOND_COL="${#lineread1[@]}"
+
+    for((m=0;m<SECOND_COL;m++))
+    do
+      addmatrix2[$iterator, $m]="${lineread1[m]}"
+    done
+    ((iterator++))
+    ((NUM_COUNT_TWO++))                                             #increments itertator and count by 1
+  done < $3                                                         #executes third commannd "m2"
+
+#recieved tutoring help with the implementation of this function from this
+#point on for this funciton
+
+if [[ "$FIRST_COL" = "$SECOND_COL" && "$NUM_COUNT" = "$NUM_COUNT_TWO" ]]
+then
+  for((iterator=0;iterator<$NUM_COUNT;iterator++))
+  do
+    for ((m=0;m<$FIRST_COL; m++))
+    do
+outputmatrix[$iterator, $m]=$((${addmatrix1[$iterator, $m]}+${addmatrix2[$iterator, $m]}))
+done
+done
+for((iterator=0;iterator<$NUM_COUNT;iterator++))
+do
+  for((m=0;m<$FIRST_COL;m++))
+  do
+    printf '%s' ${outputmatrix[$iterator, $m]}
+    if [ $m -eq $(($FIRST_COL-1)) ]
+   then
+      echo
+    else
+    printf '\t'
+fi
+done
+
+done
+else                                                    #else then throws errors
+  imsorry                                               #my fucntion call to error throw
+fi
+
+fi
+;;
+
+#Here is the start of my multiply funciton. As you can see it is ran in yet again as a case statement.
+###################################################################################################
+# I had a friend help me with implementation of this section
+
+  multiply)
+  #declerations for declaring it is an array
+  declare -A mulmatrix1
+  declare -A mulmatrix2
+  declare -A outputmatrix
+  m=o
+  e=0
+  f=0
+  d=0
+  iterator=0
+  NUM_COUNT_ONE=0
+  NUM_COUNT_TWO=0
+
+  FIRST_COL=0
+  SECOND_COL=0
+
+    while read -a lineread1
+      do
+    FIRST_COL="${#lineread1[@]}"
+    for((m=0; m<$FIRST_COL; m++)) do
+      mulmatrix1[$iterator, $m]="${lineread1[m]}"
+    done
+    ((iterator++))
+    ((NUM_COUNT_ONE++))
+  done < $2
+
+  iterator=0
+
+  while read -a lineread2
+  do
+    SECOND_COL="${#lineread2[@]}"
+    for((m=0;m<$SECOND_COL;m++))do
+      mulmatrix2[$iterator, $m]="${lineread2[m]}"
+    done
+    ((iterator++))
+    ((NUM_COUNT_TWO++))
+  done < $3
+
+  if [[ $FIRST_COL = $NUM_COUNT_TWO ]]
+  then
+    for((d=0;d<$NUM_COUNT_ONE; d++))
+    do
+      for((e=0;e<$SECOND_COL;e++))
+    do
+      for ((f=0; f<$FIRST_COL; f++))
+      do
+      outputmatrix[$d, $e]=$((${outputmatrix[$d, $e]}+${mulmatrix1[$d, $f]}*${mulmatrix2[$f, $e]}))                 #got help wiht some of the implementation for this funciton
+done
+printf '%s' ${outputmatrix[$d, $e]}
+if [ $e -eq $(($SECOND_COL-1)) ]
+then
+echo
+else
+  printf '\t'
+fi
+done
+done
+else
+  imsorry
+fi
+exit 0
+
+
+    ;;
+
+#######################################################################
+#This is my mean functon. I tried to do it how I was doing the rest of my code
+#but I couldnt figure it out so I tried and set up tempoerary files
+#like how it was showed in the examples online
+#i could not get any of this to work so I commented it out
+mean)
+#iterator=0
+#NUM_OF_COLS=0
+#m=0
+
+#if [ $# -gt 2 ]
+#then
+
+#imsorry
+
+#elif [[ $# -eq 2 &&  -e "2" ]]
+#then
+  #touch tempCol
+  #touch tempRow
+  #while read lineread
+#  do
+#  myrow='expr $myrow + 1'
+#done <$2
+
+#NUM_OF_COLS=$(head -n 1 $2 | wc -w)
+
+#first=0
+#mean=0
+
+#for((iterator=1; iterator<=$NUM_OF_COLS;iterator++))
+#do
+  #numadded=0
+#  if [ "first" == 0 ]
+  #then
+#  first='expr $first + 1'
+#cut -f $iterator, $2 > tempCol
+#cat tempCol | tr '\n' '\t' > tempRow
+
+#for m in $(cat tempRow)
+#do
+#  numadded='expr $numadded +$m'
+#done
+#mean=$((($numadded + ($myrow/2)*( ($numadded>0)*2-1)) / $myrow))
+#meanrow="$mean
+
+#else
+#  cut -f $iterator $2 >tempCol
+  #cat tempCol | tr '\n' '\t' >tempRow
+  #for j in $(cat tempRow)
+  #do
+  #numadded='expr $numadded +$j'
+#done
+#mean=$((($numadded + ($myrow/2)*( ($numadded>0)*2-1)) / $myrow))
+#meanrow="$meanrow\t$mean
+
+#fi
+
+#echo -e $meanrow >temp
+#cat temp
+#exit 0
+
+#done
+#fi
+
+;;
+esac
